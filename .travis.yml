@@ -3,20 +3,8 @@ dist: bionic
 jobs:
   include:
   # to add Kong Enterprise releases, check the Pongo docs
-  - name: Kong CE 2.0.x
-    env: KONG_VERSION=2.0.x
-  - name: Kong CE 2.1.x
-    env: KONG_VERSION=2.1.x
-  - name: Kong CE 2.2.x
-    env: KONG_VERSION=2.2.x
-  - name: Enterprise 2.1.4.x
-    env: KONG_VERSION=2.1.4.x
-  - name: Enterprise 2.2.0.x
-    env: KONG_VERSION=2.2.0.x
-  - name: Nightly EE-master
-    env: KONG_VERSION=nightly-ee POSTGRES=latest CASSANDRA=latest
-  #- name: Nightly CE-master
-  #  env: KONG_VERSION=nightly POSTGRES=latest CASSANDRA=latest
+  - name: Kong CE 2.2.0
+    env: KONG_VERSION=2.2.0
 
 env:
   global:
