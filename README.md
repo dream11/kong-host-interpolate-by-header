@@ -55,6 +55,7 @@ You also need to set the `KONG_PLUGINS` environment variable
 | `headers` | {} | true | header name to read from request headers |
 | `operation` | none | false | Operation to apply on header value (none/modulo) |
 | `modulo_by` | 1 | false | Number to do modulo by |
+| `fallback_host` | - | false | Route to fallback_host if headers are not present in req |
 
 
 
