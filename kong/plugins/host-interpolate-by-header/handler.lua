@@ -21,8 +21,15 @@ function HostByHeaderHandler:access(conf)
     for _, _header in ipairs(conf.headers) do
       local header_val = kong.request.get_header(_header:lower())
       if header_val == nil then
-        kong.log.err("No such header received in request: " .. _header)
-        return
+        if conf.fallback_host ~= nil then
+          kong.log.info(_header .. ": header not present. Falling back to " .. conf.fallback_host)
+          host = conf.fallback_host
+          break
+        else
+          kong.log.err("Failing with '" .. _header .. "' header not present")
+          -- request unprocessable
+          return kong.response.exit(422, _header .. ": header not present")
+        end
       else
         host = prepare_host(host, _header, header_val, conf)
       end

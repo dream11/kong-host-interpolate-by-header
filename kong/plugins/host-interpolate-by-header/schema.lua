@@ -17,6 +17,12 @@ return {
             }
           },
           {
+            fallback_host = {
+              type = "string",
+              required = false
+            }
+          },
+          {
             headers = {
               type = "array",
               default = {},
