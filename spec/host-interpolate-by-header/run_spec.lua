@@ -5,7 +5,7 @@ local inspect = require "inspect"
 
 for _, strategy in helpers.each_strategy() do
 	describe(
-		"Testing host-by-header plugin working on[#" .. strategy .. "]",
+		"Testing host-interpolate-by-header plugin working on[#" .. strategy .. "]",
 		function()
 			local proxy_client
 			local bp
@@ -16,7 +16,7 @@ for _, strategy in helpers.each_strategy() do
 
 			setup(
 				function()
-					bp, db = helpers.get_db_utils(strategy, {"routes", "services", "plugins"}, {"host-by-header"})
+					bp, db = helpers.get_db_utils(strategy, {"routes", "services", "plugins"}, {"host-interpolate-by-header"})
 
 					assert(
 						bp.routes:insert(
@@ -38,7 +38,7 @@ for _, strategy in helpers.each_strategy() do
 					)
 
 					host_by_header_plugin = bp.plugins:insert {
-						name = "host-by-header",
+						name = "host-interpolate-by-header",
 						config = {
 							host = "roadster-<PLACE_HOLDER>.com",
 							header_name = "contestdb",
@@ -80,7 +80,7 @@ for _, strategy in helpers.each_strategy() do
 						helpers.start_kong(
 							{
 								database = strategy,
-								plugins = "app-config,host-by-header",
+								plugins = "app-config,host-interpolate-by-header",
 								nginx_conf = "/kong/spec/fixtures/custom_plugins/kong/plugins/custom_nginx.template"
 							},
 							nil,
@@ -156,7 +156,7 @@ for _, strategy in helpers.each_strategy() do
 								["Content-Type"] = "application/json"
 							},
 							body = {
-								name = "host-by-header",
+								name = "host-interpolate-by-header",
 								config = {
 									host = "roadster-<PLACE_HOLDER>.com",
 									header_name = "contestdb",
@@ -207,7 +207,7 @@ for _, strategy in helpers.each_strategy() do
 								["Content-Type"] = "application/json"
 							},
 							body = {
-								name = "host-by-header",
+								name = "host-interpolate-by-header",
 								config = {
 									host = "roadster-<PLACE_HOLDER>.com",
 									header_name = "contestdb",
@@ -257,7 +257,7 @@ for _, strategy in helpers.each_strategy() do
 								["Content-Type"] = "application/json"
 							},
 							body = {
-								name = "host-by-header",
+								name = "host-interpolate-by-header",
 								config = {
 									host = "roadster-<PLACE_HOLDER>.com",
 									header_name = "contestdb",
@@ -307,7 +307,7 @@ for _, strategy in helpers.each_strategy() do
 								["Content-Type"] = "application/json"
 							},
 							body = {
-								name = "host-by-header",
+								name = "host-interpolate-by-header",
 								config = {
 									host = "roadster-<PLACE_HOLDER>.com",
 									header_name = "auth-userid",

@@ -1,4 +1,4 @@
-package = "host-by-header"
+package = "host-interpolate-by-header"
 
 version = "1.0.0-1"
 
@@ -18,7 +18,7 @@ dependencies = {
 build = {
     type = "builtin",
     modules = {
-        ["kong.plugins.host-by-header.handler"] = "kong/plugins/handler.lua",
-        ["kong.plugins.host-by-header.schema"] = "kong/plugins/schema.lua",
+        ["kong.plugins.host-interpolate-by-header.handler"] = "kong/plugins/handler.lua",
+        ["kong.plugins.host-interpolate-by-header.schema"] = "kong/plugins/schema.lua",
     },
 }

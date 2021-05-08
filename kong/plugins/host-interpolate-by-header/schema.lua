@@ -1,7 +1,7 @@
 local typedefs = require "kong.db.schema.typedefs"
 
 return {
-  name = "host-by-header",
+  name = "host-interpolate-by-header",
   fields = {
     {consumer = typedefs.no_consumer},
     {protocols = typedefs.protocols_http},

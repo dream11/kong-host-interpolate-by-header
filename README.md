@@ -1,6 +1,6 @@
-## What is host-by-header plugin
+## What is host-interpolate-by-header plugin
 
-**host-by-header** is a plugin for [Kong](https://github.com/Mashape/kong) and is used to dynamically update hostname of upstream service by interpolating url with values of request headers.
+**host-interpolate-by-header** is a plugin for [Kong](https://github.com/Mashape/kong) and is used to dynamically update hostname of upstream service by interpolating url with values of request headers.
 
 ## How does it work
 
@@ -10,7 +10,7 @@
 
 Example:
 
-# Equals
+### Equals
 Conf:
 ```
 {
@@ -19,12 +19,12 @@ Conf:
 }
 ```
 
-Now a request with headers:
- `zone = us-east-1`
- `shard = z3e67`
+Now a request with headers: <br>
+ `zone: us-east-1` <br>
+ `shard: z3e67`<br>
 on kong will be routed to `host = service_us-east-1_z3e67.com`.
 
-# Modulo
+#### Modulo
 Conf:
 ```
 {
@@ -35,19 +35,15 @@ Conf:
 }
 ```
 
-Now a request with header:
- `user_id = 13`
+Now a request with header:<br>
+ `user_id: 13` <br>
 on kong will be routed to `host = service_shard_1.com` as `13 % 3 = 1`.
 
 ## Installation
 
-If you're using `luarocks` execute the following:
-
-     luarocks install host-by-header
-
 You also need to set the `KONG_PLUGINS` environment variable
 
-     export KONG_PLUGINS=host-by-header
+     export KONG_PLUGINS=host-interpolate-by-header
 
 ## Usage
 
