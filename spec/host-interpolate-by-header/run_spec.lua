@@ -1,7 +1,6 @@
 local cjson = require "cjson"
 
 local helpers = require "spec.helpers"
-local inspect = require "inspect"
 
 for _, strategy in helpers.each_strategy() do
 	describe(
@@ -10,9 +9,6 @@ for _, strategy in helpers.each_strategy() do
 			local proxy_client
 			local bp
 			local db
-			local mock_host = helpers.mock_upstream_host
-			local admin_client  -- internally uses lua-resty-http
-			local host_by_header_plugin
 
 			setup(
 				function()
@@ -37,13 +33,13 @@ for _, strategy in helpers.each_strategy() do
 						)
 					)
 
-					host_by_header_plugin = bp.plugins:insert {
+					bp.plugins:insert {
 						name = "host-interpolate-by-header",
 						config = {
-							host = "roadster-<PLACE_HOLDER>.com",
-							header_name = "contestdb",
+							host = "service_<PLACE_HOLDER1>_<PLACE_HOLDER2>.com",
+							headers = {"PLACE_HOLDER1", "PLACE_HOLDER2"},
 							operation = "none",
-							arithmetic_operand = 1,
+							modulo_by = 1,
 						}
 					}
 
@@ -51,27 +47,7 @@ for _, strategy in helpers.each_strategy() do
 						dns_mock = helpers.dns_mock.new()
 					}
 					fixtures1.dns_mock:SRV {
-						name = "roadster-voltdb5.com",
-						target = "127.0.0.1",
-						port = 15555
-					}
-					fixtures1.dns_mock:SRV {
-						name = "roadster-2.com",
-						target = "127.0.0.1",
-						port = 15555
-					}
-					fixtures1.dns_mock:SRV {
-						name = "roadster-50.com",
-						target = "127.0.0.1",
-						port = 15555
-					}
-					fixtures1.dns_mock:SRV {
-						name = "roadster-4.com",
-						target = "127.0.0.1",
-						port = 15555
-					}
-					fixtures1.dns_mock:SRV {
-						name = "test.com",
+						name = "service_abc_xyz.com",
 						target = "127.0.0.1",
 						port = 15555
 					}
@@ -80,35 +56,20 @@ for _, strategy in helpers.each_strategy() do
 						helpers.start_kong(
 							{
 								database = strategy,
-								plugins = "app-config,host-interpolate-by-header",
-								nginx_conf = "/kong/spec/fixtures/custom_plugins/kong/plugins/custom_nginx.template"
+								plugins = "host-interpolate-by-header",
+								nginx_conf = "/kong/spec/fixtures/custom_nginx.template"
 							},
 							nil,
 							nil,
 							fixtures1
 						)
 					)
-
-					admin_client = helpers.admin_client(60000) -- 60000 is timeout for lua-resty-http
 					proxy_client = helpers.proxy_client()
 				end
 			)
 
-			-- before_each(
-			-- 	function()
-			-- 		proxy_client = helpers.proxy_client()
-			-- 	end
-			-- )
-
-			-- after_each(
-			-- 	function()
-			-- 		proxy_client:close()
-			-- 	end
-			-- )
-
 			teardown(
 				function()
-					admin_client:close()
 					proxy_client:close()
 					helpers.stop_kong()
 					db:truncate()
@@ -126,7 +87,6 @@ for _, strategy in helpers.each_strategy() do
 								method = "GET",
 								path = "/gethost",
 								headers = {
-									["host"] = "test.com",
 									["Content-type"] = "application/json"
 								}
 							}
@@ -136,38 +96,15 @@ for _, strategy in helpers.each_strategy() do
 					it(
 						"\nRequest to upstream should be sent to original hostname",
 						function()
-							local proxied_host = res.headers["incoming-host"]
-							assert(res.status == 200)
-							assert(proxied_host == "test.com")
+							assert(res.status == 422)
 						end
 					)
 				end
 			)
 
-			describe(
-				"Request should have placeholder in host specified",
+      describe(
+				"Upstream host should be interpolated by request headers",
 				function()
-					admin_client = helpers.admin_client(60000)
-					local url = "/plugins/" .. host_by_header_plugin["id"]
-					local admin_res = admin_client:patch(
-						url,
-						{
-							headers = {
-								["Content-Type"] = "application/json"
-							},
-							body = {
-								name = "host-interpolate-by-header",
-								config = {
-									host = "roadster-<PLACE_HOLDER>.com",
-									header_name = "contestdb",
-									operation = "none",
-									arithmetic_operand = 1,
-								},
-								enabled = true,
-								consumer = nil
-							}
-						}
-					)
 					proxy_client = helpers.proxy_client()
 					local res =
 						assert(
@@ -176,174 +113,27 @@ for _, strategy in helpers.each_strategy() do
 								method = "GET",
 								path = "/gethost",
 								headers = {
-									["host"] = "test.com",
 									["Content-type"] = "application/json",
-									["contestdb"] = "voltdb5",
-								}
-							}
-						)
-					)
-					it(
-						"\nRequest to upstream should be sent to correct hostname",
-						function()
-							local proxied_host = res.headers["incoming-host"]
-
-							assert(res.status == 200)
-							assert(proxied_host == "roadster-voltdb5.com")
-						end
-					)
-				end
-			)
-
-			describe(
-				"Request should have placeholder with correct addition",
-				function()
-					admin_client = helpers.admin_client(60000)
-					local url = "/plugins/" .. host_by_header_plugin["id"]
-					local admin_res = admin_client:patch(
-						url,
-						{
-							headers = {
-								["Content-Type"] = "application/json"
-							},
-							body = {
-								name = "host-interpolate-by-header",
-								config = {
-									host = "roadster-<PLACE_HOLDER>.com",
-									header_name = "contestdb",
-									operation = "add",
-									arithmetic_operand = 1,
+									["place_holder1"] = "abc",
+									["place_holder2"] = "xyz"
 								},
-								enabled = true,
-								consumer = nil
-							}
-						}
-					)
-					proxy_client = helpers.proxy_client()
-					local res =
-						assert(
-						proxy_client:send(
-							{
-								method = "GET",
-								path = "/gethost",
-								headers = {
-									["host"] = "test.com",
-									["Content-type"] = "application/json",
-									["contestdb"] = "1",
-								}
+                data = {}
 							}
 						)
 					)
+
 					it(
-						"\nRequest to upstream should be sent to correct hostname",
+						"\nRequest to upstream should be sent to original hostname #test",
 						function()
-							local proxied_host = res.headers["incoming-host"]
+              local body_data = assert(res:read_body())
+              body_data = cjson.decode(body_data)
 							assert(res.status == 200)
-							assert(proxied_host == "roadster-2.com")
+							assert(body_data.headers.host == "service_abc_xyz.com")
 						end
 					)
 				end
 			)
 
-			describe(
-				"Request should have placeholder with correct multiplication",
-				function()
-					admin_client = helpers.admin_client(60000)
-					local url = "/plugins/" .. host_by_header_plugin["id"]
-					local admin_res = admin_client:patch(
-						url,
-						{
-							headers = {
-								["Content-Type"] = "application/json"
-							},
-							body = {
-								name = "host-interpolate-by-header",
-								config = {
-									host = "roadster-<PLACE_HOLDER>.com",
-									header_name = "contestdb",
-									operation = "multiply",
-									arithmetic_operand = 10,
-								},
-								enabled = true,
-								consumer = nil
-							}
-						}
-					)
-					proxy_client = helpers.proxy_client()
-					local res =
-						assert(
-						proxy_client:send(
-							{
-								method = "GET",
-								path = "/gethost",
-								headers = {
-									["host"] = "test.com",
-									["Content-type"] = "application/json",
-									["contestdb"] = "5",
-								}
-							}
-						)
-					)
-					it(
-						"\nRequest to upstream should be sent to correct hostname",
-						function()
-							local proxied_host = res.headers["incoming-host"]
-							assert(res.status == 200)
-							assert(proxied_host == "roadster-50.com")
-						end
-					)
-				end
-			)
-
-			describe(
-				"Request should have placeholder with correct modulo",
-				function()
-					admin_client = helpers.admin_client(60000)
-					local url = "/plugins/" .. host_by_header_plugin["id"]
-					local admin_res = admin_client:patch(
-						url,
-						{
-							headers = {
-								["Content-Type"] = "application/json"
-							},
-							body = {
-								name = "host-interpolate-by-header",
-								config = {
-									host = "roadster-<PLACE_HOLDER>.com",
-									header_name = "auth-userid",
-									operation = "modulo",
-									arithmetic_operand = 5,
-								},
-								enabled = true,
-								consumer = nil
-							}
-						}
-					)
-					proxy_client = helpers.proxy_client()
-					local res =
-						assert(
-						proxy_client:send(
-							{
-								method = "GET",
-								path = "/gethost",
-								headers = {
-									["host"] = "test.com",
-									["Content-type"] = "application/json",
-									["auth-userid"] = "1234",
-								}
-							}
-						)
-					)
-					it(
-						"\nRequest to upstream should be sent to correct hostname",
-						function()
-							local proxied_host = res.headers["incoming-host"]
-							assert(res.status == 200)
-							assert(proxied_host == "roadster-4.com")
-						end
-					)
-				end
-			)
 		end
 	)
 end

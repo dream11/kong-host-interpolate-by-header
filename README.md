@@ -1,8 +1,9 @@
-## What is host-interpolate-by-header plugin
+## host-interpolate-by-header
+[![Build Status](https://travis-ci.com/dream11/kong-host-interpolate-by-header.svg?token=1GXCQ7wuyr9U61oT9yZt&branch=master)](https://travis-ci.com/dream11/kong-host-interpolate-by-header)
 
 **host-interpolate-by-header** is a plugin for [Kong](https://github.com/Mashape/kong) and is used to dynamically update hostname of upstream service by interpolating url with values of request headers.
 
-## How does it work
+## How does it work?
 
 - This plugin reads all the headers from the incoming request specified in the conf.
 - Transforms the value from headers as per operation in the conf.

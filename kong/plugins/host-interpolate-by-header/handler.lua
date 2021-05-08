@@ -28,7 +28,7 @@ function HostByHeaderHandler:access(conf)
         else
           kong.log.err("Failing with '" .. _header .. "' header not present")
           -- request unprocessable
-          return kong.response.exit(422, _header .. ": header not present")
+          return kong.response.exit(422, {error = _header .. ": header not present"})
         end
       else
         host = prepare_host(host, _header, header_val, conf)
