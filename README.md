@@ -11,12 +11,15 @@
 
 Example:
 
-### Equals
-Conf:
+### Operation = none
+
 ```
-{
-    host: "service_<zone>_<shard>.com",
-    headers: {"zone", "shard"}
+conf = {
+    host = "service_<zone>_<shard>.com",
+    headers = {"zone", "shard"},
+    fallback_host = "service_fallback.com",
+    operation = "none",
+    modulo_by = 1
 }
 ```
 
@@ -25,14 +28,15 @@ Now a request with headers: <br>
  `shard: z3e67`<br>
 on kong will be routed to `host = service_us-east-1_z3e67.com`.
 
-#### Modulo
-Conf:
+### Operation = modulo
+
 ```
-{
-    host: "service_shard_<user_id>.com",
-    headers: {"user_id"},
-    operation: "modulo",
-    modulo_by: 3
+conf = {
+    host = "service_shard_<user_id>.com",
+    headers = {"user_id"},
+    fallback_host = "service_fallback.com",
+    operation = "modulo",
+    modulo_by = 3
 }
 ```
 
@@ -41,6 +45,10 @@ Now a request with header:<br>
 on kong will be routed to `host = service_shard_1.com` as `13 % 3 = 1`.
 
 ## Installation
+
+Clone this repo and run 
+
+     luarocks make
 
 You also need to set the `KONG_PLUGINS` environment variable
 
@@ -53,13 +61,7 @@ You also need to set the `KONG_PLUGINS` environment variable
 | Parameter | Default  | Required | description |
 | --- | --- | --- | --- |
 | `host` | hostname-<PLACE_HOLDER>.com | true | Hostname of upstream service |
-| `headers` | {} | true | header name to read from request headers |
+| `headers` | {} | true | array of headers read from request for interpolation |
 | `operation` | none | false | Operation to apply on header value (none/modulo) |
-| `modulo_by` | 1 | false | Number to do modulo by |
-| `fallback_host` | - | false | Route to fallback_host if headers are not present in req |
-
-
-
-### Running Unit Tests
-
-TBD
+| `modulo_by` | 1 | false | Number to do modulo by when operation = modulo |
+| `fallback_host` | - | false | Route to fallback_host if any of the headers is missing in request else error is returned with status code 422 |

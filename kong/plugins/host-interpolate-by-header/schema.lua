@@ -19,6 +19,7 @@ return {
           {
             fallback_host = {
               type = "string",
+              len_min = 0,
               required = false
             }
           },

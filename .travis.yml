@@ -10,6 +10,5 @@ install:
 - "../kong-pongo/pongo.sh build"
 
 script:
-- "luarocks install luacov"
 - "../kong-pongo/pongo.sh lint"
-- "../kong-pongo/pongo.sh run -c"
+- "../kong-pongo/pongo.sh run"
