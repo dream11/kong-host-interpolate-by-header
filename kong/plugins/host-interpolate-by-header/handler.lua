@@ -1,7 +1,7 @@
-local HostByHeaderHandler = {}
+local HostInterpolateByHeaderHandler = {}
 
-HostByHeaderHandler.PRIORITY = 810
-HostByHeaderHandler.VERSION = "1.0.0"
+HostInterpolateByHeaderHandler.PRIORITY = 810
+HostInterpolateByHeaderHandler.VERSION = "1.0.0"
 
 local function prepare_host(host, _header, header_val, conf)
   local value = header_val
@@ -10,11 +10,10 @@ local function prepare_host(host, _header, header_val, conf)
   end
 
   host = host:gsub("<" .. _header .. ">", tostring(value))
-
   return host
 end
 
-function HostByHeaderHandler:access(conf)
+function HostInterpolateByHeaderHandler:access(conf)
 
   local host = conf.host
   if #conf.headers > 0 then
@@ -41,4 +40,4 @@ function HostByHeaderHandler:access(conf)
   kong.ctx.shared.upstream_host = host
 end
 
-return HostByHeaderHandler
+return HostInterpolateByHeaderHandler
