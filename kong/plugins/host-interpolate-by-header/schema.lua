@@ -1,7 +1,7 @@
 local typedefs = require "kong.db.schema.typedefs"
 
 return {
-  name = "host-by-header",
+  name = "host-interpolate-by-header",
   fields = {
     {consumer = typedefs.no_consumer},
     {protocols = typedefs.protocols_http},
@@ -14,6 +14,13 @@ return {
               type = "string",
               default = "hostname-<PLACE_HOLDER>.com",
               required = true
+            }
+          },
+          {
+            fallback_host = {
+              type = "string",
+              len_min = 0,
+              required = false
             }
           },
           {

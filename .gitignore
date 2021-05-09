@@ -3,3 +3,4 @@
 .secrets
 .config
 .config-prod
+.pongo/.ash_history

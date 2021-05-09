@@ -9,4 +9,4 @@ globals = {
 	"it"
 }
 
-self = true
+self = false
