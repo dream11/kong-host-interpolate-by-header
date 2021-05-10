@@ -4,9 +4,9 @@
 
 ## How does it work?
 
-- This plugin reads all the headers from the incoming request specified in the conf.
-- Transforms the value from headers as per operation in the conf.
-- Interpolate hostname of the request with above values before make upstream request.
+1. The plugin reads all the headers from the incoming request specified in the config as `headers`.
+2. It transforms the value of the specified headers as per `operation` in the config.
+3. It interpolates hostname of the request with above values before making upstream request.
 
 Example:
 
@@ -45,11 +45,17 @@ on kong will be routed to `host = service_shard_1.com` as `13 % 3 = 1`.
 
 ## Installation
 
-Clone this repo and run 
+### luarocks
+```bash
+luarocks install host-interpolate-by-header
+```
+
+### source
+Clone this repo and run:
 
      luarocks make
-
-You also need to set the `KONG_PLUGINS` environment variable
+-------------------------
+You also need to set the `KONG_PLUGINS` environment variable:
 
      export KONG_PLUGINS=host-interpolate-by-header
 
