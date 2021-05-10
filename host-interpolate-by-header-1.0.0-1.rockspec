@@ -4,7 +4,7 @@ version = "1.0.0-1"
 
 supported_platforms = {"linux", "macosx"}
 source = {
-    url = "https://github.com/dream11/kong-plugins"
+    url = "https://github.com/dream11/kong-host-interpolate-by-header"
 }
 
 description = {
