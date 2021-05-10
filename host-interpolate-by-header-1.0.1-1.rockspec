@@ -1,14 +1,17 @@
 package = "host-interpolate-by-header"
 
-version = "1.0.0-1"
+version = "1.0.1-1"
 
 supported_platforms = {"linux", "macosx"}
 source = {
-    url = "https://github.com/dream11/kong-host-interpolate-by-header"
+    url = "git://github.com/dream11/kong-host-interpolate-by-header"
 }
 
 description = {
-    summary = "Plugin for routing to a host based on request header"
+    summary = "Kong plugin for routing to a host based on request header",
+    homepage = "https://github.com/dream11/kong-host-interpolate-by-header/tree/luarocks-upload",
+    license = "MIT",
+    maintainer = "Dream11 <tech@dream11.com>"
 }
 
 dependencies = {
