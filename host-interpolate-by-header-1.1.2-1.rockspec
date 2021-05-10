@@ -1,10 +1,11 @@
 package = "host-interpolate-by-header"
 
-version = "1.0.1-1"
+version = "1.1.2-1"
 
 supported_platforms = {"linux", "macosx"}
 source = {
-    url = "git://github.com/dream11/kong-host-interpolate-by-header"
+    url = "git://github.com/dream11/kong-host-interpolate-by-header",
+    tag = "v1.1.2"
 }
 
 description = {
@@ -21,7 +22,7 @@ dependencies = {
 build = {
     type = "builtin",
     modules = {
-        ["kong.plugins.host-interpolate-by-header.handler"] = "kong/plugins/handler.lua",
-        ["kong.plugins.host-interpolate-by-header.schema"] = "kong/plugins/schema.lua",
+        ["kong.plugins.host-interpolate-by-header.handler"] = "kong/plugins/host-interpolate-by-header/handler.lua",
+        ["kong.plugins.host-interpolate-by-header.schema"] = "kong/plugins/host-interpolate-by-header/schema.lua",
     },
 }
