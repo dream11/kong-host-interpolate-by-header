@@ -13,7 +13,7 @@ Example:
 
 ### Operation = none
 
-```
+```lua
 conf = {
     host = "service_<zone>_<shard>.com",
     headers = {"zone", "shard"},
@@ -30,7 +30,7 @@ on kong will be routed to `host = service_us-east-1_z3e67.com`.
 
 ### Operation = modulo
 
-```
+```lua
 conf = {
     host = "service_shard_<user_id>.com",
     headers = {"user_id"},
