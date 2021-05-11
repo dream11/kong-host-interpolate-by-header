@@ -54,7 +54,8 @@ luarocks install host-interpolate-by-header
 Clone this repo and run:
 
      luarocks make
--------------------------
+
+------------------
 You also need to set the `KONG_PLUGINS` environment variable:
 
      export KONG_PLUGINS=host-interpolate-by-header
@@ -65,7 +66,7 @@ You also need to set the `KONG_PLUGINS` environment variable:
 
 | Parameter | Default  | Required | description |
 | --- | --- | --- | --- |
-| `host` | hostname-<PLACE_HOLDER>.com | true | Hostname of upstream service |
+| `host` | hostname-\<PLACE_HOLDER\>.com | true | Hostname of upstream service |
 | `headers` | {} | true | array of headers read from request for interpolation |
 | `operation` | none | false | Operation to apply on header value (none/modulo) |
 | `modulo_by` | 1 | false | Number to do modulo by when operation = modulo |
