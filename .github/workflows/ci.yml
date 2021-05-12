@@ -41,4 +41,6 @@ jobs:
         run: ../kong-pongo/pongo.sh up  && ../kong-pongo/pongo.sh build && ../kong-pongo/pongo.sh shell @./test.sh
 
       - name: Coverage
-        run: bash <(curl -s https://codecov.io/bash)
+        run: |
+          wget -s https://codecov.io/bash
+          bash bash -f "coverage.xml" -t 4526d3eb-e1b0-4046-99cd-5f70a2ce8762 -U "-s" -A "-s"
