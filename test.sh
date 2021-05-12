@@ -1,4 +1,5 @@
-busted /kong-plugin -c
-luacov
-wget https://codecov.io/bash
-bash bash
+env
+# busted /kong-plugin -c
+# luacov
+# wget https://codecov.io/bash
+# bash bash
