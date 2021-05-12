@@ -16,6 +16,14 @@ on:
 
 env:
   KONG_VERSION: 2.2.0
+  CI: true
+  GITHUB_ACTIONS: ${GITHUB_ACTIONS}
+  GITHUB_HEAD_REF: ${GITHUB_HEAD_REF}
+  GITHUB_REF: ${GITHUB_REF}
+  GITHUB_REPOSITORY: ${GITHUB_REPOSITORY}
+  GITHUB_RUN_ID: ${GITHUB_RUN_ID}
+  GITHUB_SHA: ${GITHUB_SHA}
+  GITHUB_WORKFLOW: ${GITHUB_WORKFLOW}
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -38,4 +46,4 @@ jobs:
           git clone --single-branch https://github.com/Kong/kong-pongo ../kong-pongo
 
       - name: Lint
-        run: ../kong-pongo/pongo.sh up --env CI=true --env GITHUB_ACTIONS=${GITHUB_ACTIONS} --env GITHUB_HEAD_REF=${GITHUB_HEAD_REF} --env GITHUB_REF=${GITHUB_REF} --env GITHUB_REPOSITORY=${GITHUB_REPOSITORY} --env GITHUB_RUN_ID=${GITHUB_RUN_ID} --env GITHUB_SHA=${GITHUB_SHA} --env GITHUB_WORKFLOW=${GITHUB_WORKFLOW} && ../kong-pongo/pongo.sh shell @./test.sh
+        run: ../kong-pongo/pongo.sh up  && ../kong-pongo/pongo.sh shell @./test.sh
