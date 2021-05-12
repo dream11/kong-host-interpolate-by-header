@@ -50,4 +50,5 @@ jobs:
         with:
           clover_file: luacov.report.out
           check: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
