@@ -38,4 +38,4 @@ jobs:
           git clone --single-branch https://github.com/Kong/kong-pongo ../kong-pongo
 
       - name: Lint
-        run: export CI=true  && export GITHUB_ACTIONS=${GITHUB_ACTIONS}  && export GITHUB_HEAD_REF=${GITHUB_HEAD_REF}  && export GITHUB_REF=${GITHUB_REF}  && export GITHUB_REPOSITORY=${GITHUB_REPOSITORY}  && export GITHUB_RUN_ID=${GITHUB_RUN_ID}  && export GITHUB_SHA=${GITHUB_SHA}  && export GITHUB_WORKFLOW=${GITHUB_WORKFLOW} && ../kong-pongo/pongo.sh up && ../kong-pongo/pongo.sh shell @./test.sh
+        run: ../kong-pongo/pongo.sh up && ../kong-pongo/pongo.sh shell @./test.sh
