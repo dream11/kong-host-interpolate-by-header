@@ -1,0 +1,17 @@
+name: Comment Triggers
+on:
+  pull_request:
+    types: [opened]
+  issue_comment:
+    types: [created]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: khan/pull-request-comment-trigger@master
+        id: check
+        with:
+          trigger: '@merge-pr'
+      - if: steps.check.outputs.triggered == 'true'
+        run: 'echo Found it!'
+

@@ -1,0 +1,17 @@
+name: Release Workflow
+on: []
+jobs:
+  is_branch_rebased:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Ancestor Commit ID
+        id: s1
+        run: echo "::set-output name=c_id::$(git merge-base origin/${{ github.base_ref }} origin/${{ github.head_ref }})"
+      - name: Base Branch Head Commit ID
+        id: s2
+        run: echo "::set-output name=c_id::$(git rev-parse origin/${{ github.base_ref }})"
+      - if: ${{ steps.s1.outputs.c_id}} == ${{ steps.s2.outputs.c_id}}
+        run: echo "Rebased"
