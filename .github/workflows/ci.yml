@@ -47,6 +47,7 @@ jobs:
 
       - name: Coverage monitor
         uses: slavcodev/coverage-monitor-action@v1
-        clover_file: luacov.report.out\
-        check: true
+        with:
+          clover_file: luacov.report.out
+          check: true
 
