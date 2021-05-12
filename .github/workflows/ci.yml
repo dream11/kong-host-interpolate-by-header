@@ -38,7 +38,7 @@ jobs:
           git clone --single-branch https://github.com/Kong/kong-pongo ../kong-pongo
 
       - name: Lint
-        run: ../kong-pongo/pongo.sh up  && ./kong-pongo/pongo.sh build && ../kong-pongo/pongo.sh shell @./test.sh
+        run: ../kong-pongo/pongo.sh up  && ../kong-pongo/pongo.sh build && ../kong-pongo/pongo.sh shell @./test.sh
 
       - name: Coverage
         run: bash <(curl -s https://codecov.io/bash)
