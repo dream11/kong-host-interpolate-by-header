@@ -1,6 +1,3 @@
-export CI=true
-env
-busted /kong-plugin -c
+cd /kong-plugin
+busted /kong-plugin/spec -c
 luacov
-wget https://codecov.io/bash
-bash bash
