@@ -42,5 +42,5 @@ jobs:
 
       - name: Coverage
         run: |
-          wget -s https://codecov.io/bash
+          wget https://codecov.io/bash
           bash bash -f "coverage.xml" -t 4526d3eb-e1b0-4046-99cd-5f70a2ce8762 -U "-s" -A "-s"
