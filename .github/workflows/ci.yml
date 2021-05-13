@@ -41,9 +41,12 @@ jobs:
         run: ../kong-pongo/pongo.sh up  && ../kong-pongo/pongo.sh build && ../kong-pongo/pongo.sh shell @./test.sh
 
       - name: Monitor coverage
-        uses: slavcodev/coverage-monitor-action@1.2.0
+        uses: codecov/codecov-action@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          threshold_alert: 10
-          threshold_warning: 50
+          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+          files: ./luacov.report.out
+          name: codecov-umbrella # optional
+          fail_ci_if_error: true # optional (default = false)
+          verbose: true # optional (default = false)
+
 
