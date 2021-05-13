@@ -16,7 +16,6 @@ on:
 
 env:
   KONG_VERSION: 2.2.0
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -44,7 +43,7 @@ jobs:
       - name: Coverage monitor
         uses: slavcodev/coverage-monitor-action@v1
         with:
-          github_token: ${{ GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           clover_file: luacov.report.out
           check: true
 
