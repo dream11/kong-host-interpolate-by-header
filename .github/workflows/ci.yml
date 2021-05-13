@@ -40,10 +40,10 @@ jobs:
       - name: Lint
         run: ../kong-pongo/pongo.sh up  && ../kong-pongo/pongo.sh build && ../kong-pongo/pongo.sh shell @./test.sh
 
-      - name: Coverage monitor
-        uses: slavcodev/coverage-monitor-action@v1
+      - name: Monitor coverage
+        uses: slavcodev/coverage-monitor-action@1.2.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          clover_file: luacov.report.out
-          check: true
+          threshold_alert: 10
+          threshold_warning: 50
 
