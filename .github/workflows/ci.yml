@@ -42,7 +42,7 @@ jobs:
         run: ../kong-pongo/pongo.sh up  && ../kong-pongo/pongo.sh build && ../kong-pongo/pongo.sh shell @./test.sh
 
       - name: Monitor coverage
-        uses: codecov/codecov-action@v1.5.0
+        uses: codecov/codecov-action@v1.4.0
         with:
           files: ./luacov.report.out
           name: codecov-umbrella # optional
