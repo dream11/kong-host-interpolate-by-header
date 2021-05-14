@@ -1,4 +1,3 @@
-# cd /kong-plugin
 busted /kong-plugin/spec -c
-luacov
+luacov -c /kong-plugin/.luacov
 cp luacov.report.out /kong-plugin
