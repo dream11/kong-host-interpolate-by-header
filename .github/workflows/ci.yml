@@ -2,7 +2,7 @@
 
 name: Continuous Integration
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   # Triggers the workflow on push or pull request events but only for the '*' branch
   push:
@@ -16,6 +16,7 @@ on:
 
 env:
   KONG_VERSION: 2.2.0
+  CI: true
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -36,11 +37,11 @@ jobs:
       - name: Build kong
         run: |
           git clone --single-branch https://github.com/Kong/kong-pongo ../kong-pongo
-          ../kong-pongo/pongo.sh up
-          ../kong-pongo/pongo.sh build
 
       - name: Lint
-        run: ../kong-pongo/pongo.sh lint
+        run: ../kong-pongo/pongo.sh up  && ../kong-pongo/pongo.sh build && ../kong-pongo/pongo.sh shell @./ci/test.sh
 
-      - name: Test
-        run: ../kong-pongo/pongo.sh run
+      - name: Code Coverage
+        run: |
+          wget https://codecov.io/bash
+          bash bash -f "luacov.report.out" -t 7fc48fa1-ceb5-43b9-b502-ece4fb1643eb -U "-s" -A "-s"
