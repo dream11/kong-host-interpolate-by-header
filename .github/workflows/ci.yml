@@ -44,4 +44,4 @@ jobs:
       - name: Code Coverage
         run: |
           wget https://codecov.io/bash
-          bash bash -f "luacov.report.out" -t 4526d3eb-e1b0-4046-99cd-5f70a2ce8762 -U "-s" -A "-s"
+          bash bash -f "luacov.report.out" -t 7fc48fa1-ceb5-43b9-b502-ece4fb1643eb -U "-s" -A "-s"
