@@ -41,12 +41,7 @@ jobs:
       - name: Lint
         run: ../kong-pongo/pongo.sh up  && ../kong-pongo/pongo.sh build && ../kong-pongo/pongo.sh shell @./test.sh
 
-      - name: Monitor coverage
-        uses: codecov/codecov-action@v1.4.0
-        with:
-          files: ./luacov.report.out
-          name: codecov-umbrella # optional
-          fail_ci_if_error: true # optional (default = false)
-          codecov_curl_args: -t 4526d3eb-e1b0-4046-99cd-5f70a2ce8762 -U "-s" -A "-s"
-
-
+      - name: Code Coverage
+        run: |
+          wget https://codecov.io/bash
+          bash bash -f "luacov.report.out" -t 4526d3eb-e1b0-4046-99cd-5f70a2ce8762 -U "-s" -A "-s"
