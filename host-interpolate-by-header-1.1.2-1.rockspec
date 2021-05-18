@@ -4,7 +4,7 @@ version = "1.1.2-1"
 
 supported_platforms = {"linux", "macosx"}
 source = {
-    url = "git://github.com/dream11/kong-host-interpolate-by-header",
+    url = "git://github.com/chirag-d11/kong-host-interpolate-by-header",
     tag = "v1.1.2"
 }
 
