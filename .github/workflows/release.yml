@@ -1,0 +1,21 @@
+name: Publish Release
+
+on:
+  release:
+    type: [published]
+
+jobs:
+  upload_to_luarocks:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v2
+
+    - uses: leafo/gh-actions-luarocks@v3
+      with:
+        luarocksVersion: "3.3.1"
+
+    - run: |
+      rockspec_file_name=$(ls *.rockspec)
+      luarocks upload $rockspec_file_name --api-key=${{ secrets.LUAROCKS_KEY }}
