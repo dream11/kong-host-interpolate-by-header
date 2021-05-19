@@ -15,4 +15,4 @@ jobs:
       uses: actions/checkout@v2
 
     - run: .ci/scripts/install-deps.sh
-    - run: .ci/scripts/upload.sh
+    - run: .ci/scripts/upload.sh ${{ secrets.LUAROCKS_KEY }}
