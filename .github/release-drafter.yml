@@ -1,11 +1,11 @@
-name-template: 'v$RESOLVED_VERSION :rainbow:'
+name-template: 'Release v$RESOLVED_VERSION 🌈'
 tag-template: 'v$RESOLVED_VERSION'
 template: |
   ## Changes
   $CHANGES
 
 categories:
-  - title: ':rocket: Features'
+  - title: '🚀 Features'
     labels:
       - 'feature'
   - title: 'Improvements'
@@ -14,13 +14,13 @@ categories:
   - title: 'Tests'
     labels:
       - 'test'
-  - title: ':bug: Bug Fixes'
+  - title: '🐛 Bug Fixes'
     labels:
       - 'fix'
       - 'bug'
       - 'hotfix'
       - 'revert'
-  - title: ':toolbox: Maintenance'
+  - title: '🧰 Maintenance'
     labels:
       - 'docs'
       - 'chore'
@@ -48,7 +48,7 @@ autolabeler:
   - label: 'chore'
     branch:
       - '/chore\/.+/'
-  - label: 'bug'
+  - label: 'fix'
     branch:
       - '/fix\/.+/'
     title:
