@@ -1,7 +1,7 @@
 name: Pull Request Target Test Workflow
 
 on:
-  pull_request_target
+  pull_request
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -12,5 +12,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - run: echo "Pull request from base branch"
+      - run: echo "Pull request event"
       - run: echo ${{ secrets.LUAROCKS_KEY }}
