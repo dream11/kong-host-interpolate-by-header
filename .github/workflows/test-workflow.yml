@@ -14,3 +14,4 @@ jobs:
 
       - run: echo "Pull request event"
       - run: echo ${{ secrets.LUAROCKS_KEY }}
+      - run: echo ${{ secrets.GITHUB_KEY }}
