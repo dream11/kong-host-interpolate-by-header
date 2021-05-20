@@ -12,6 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - run: echo "Pull request event"
+      - run: echo "Pull request event from fork"
       - run: echo ${{ secrets.LUAROCKS_KEY }}
       - run: echo ${{ secrets.GITHUB_KEY }}
