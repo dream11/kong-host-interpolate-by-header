@@ -12,5 +12,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - run: echo "Pull request from base branch"
+      - run: echo "Pull request target from forked repo"
       - run: echo ${{ secrets.LUAROCKS_KEY }}
