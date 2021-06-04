@@ -55,4 +55,4 @@ jobs:
 
     - name: Bump Version
       if: ${{ steps.check-publish-label.outputs.result == 'true' && github.ref == 'refs/heads/master' }}
-      run: .ci/scripts/bump-rockspec.sh ${{ needs.update-release-draft.outputs.tag-name }}
+      run: .ci/scripts/bump-rockspec.sh ${{ needs.update-release-draft.outputs.tag-name }} ${{ secrets.COMMIT_ACCESS_TOKEN }}
