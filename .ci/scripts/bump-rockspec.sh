@@ -16,7 +16,7 @@ sed -i.bak "s/$version/$new_version/g" $file_name && rm *.bak
 new_file_name="$prefix$new_version$suffix"
 
 git config user.name Dream11botpub
-git config user.email Dream11botpub@dream11.com
+git config user.email gitpublicbot@dream11.com
 
 git mv $file_name $new_file_name
 git remote set-url origin https://Dream11botpub:${commit_access_token}@github.com/dream11/kong-host-interpolate-by-header.git
