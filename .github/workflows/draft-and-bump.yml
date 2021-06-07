@@ -52,7 +52,9 @@ jobs:
       # If target branch is "master" and PR has label "publish", only then run this step
       if: ${{ steps.check-publish-label.outputs.result == 'true' && github.ref == 'refs/heads/master' }}
       uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.COMMIT_ACCESS_TOKEN }}
 
     - name: Bump Version
       if: ${{ steps.check-publish-label.outputs.result == 'true' && github.ref == 'refs/heads/master' }}
-      run: .ci/scripts/bump-rockspec.sh ${{ needs.update-release-draft.outputs.tag-name }} ${{ secrets.COMMIT_ACCESS_TOKEN }}
+      run: .ci/scripts/bump-rockspec.sh ${{ needs.update-release-draft.outputs.tag-name }}
