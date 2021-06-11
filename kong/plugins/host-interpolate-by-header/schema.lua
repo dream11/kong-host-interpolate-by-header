@@ -32,6 +32,14 @@ return {
             }
           },
           {
+            environment_variables = {
+              type = "array",
+              default = {},
+              elements = { type = "string" },
+              required = true
+            }
+          },
+          {
             operation = {
               type = "string",
               len_min = 0,
