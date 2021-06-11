@@ -5,3 +5,4 @@
 .config-prod
 .pongo/.ash_history
 *.rock
+docs/.DS_Store
