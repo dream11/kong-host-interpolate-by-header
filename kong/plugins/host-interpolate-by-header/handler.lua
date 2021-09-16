@@ -10,11 +10,13 @@ local function interpolate_header(host, _header, header_val, conf)
     value = tonumber(value) % conf.modulo_by
   end
 
+  _header = _header:gsub("%-","%%%-")
   host = host:gsub("<" .. _header .. ">", tostring(value))
   return host
 end
 
 local function interpolate_env_variable(host, env, env_val)
+  env = env:gsub("%-","%%%-")
   host = host:gsub("<" .. env .. ">", tostring(env_val))
   return host
 end
@@ -61,7 +63,7 @@ function HostInterpolateByHeaderHandler:access(conf)
   end
 
   kong.log.debug("Final value of hostname is: " .. host)
-  kong.service.set_target(host, tonumber(80))
+  kong.service.set_target(host, tonumber(conf.port))
   kong.ctx.shared.upstream_host = host
 end
 

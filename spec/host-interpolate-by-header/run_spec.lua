@@ -82,13 +82,14 @@ for _, strategy in helpers.each_strategy() do
       teardown(
         function()
           proxy_client:close()
+          admin_client:close()
           helpers.stop_kong()
           db:truncate()
         end
       )
 
       describe(
-        "\n ** Request should go as it is when no such header is present",
+        "\n ** Request should go to fallback host when no such header is present",
         function()
           proxy_client = helpers.proxy_client()
           local res =
@@ -105,7 +106,7 @@ for _, strategy in helpers.each_strategy() do
           )
 
           it(
-            "\nCheck status code and host in response header",
+            "\nStatus code should be 200 and host should be fallback_host",
             function()
               local body_data = assert(res:read_body())
               body_data = cjson.decode(body_data)
@@ -137,7 +138,7 @@ for _, strategy in helpers.each_strategy() do
           )
 
           it(
-            "\nCheck status code and host in response header",
+            "\nStatus code should be 200 and host should be service_abc_xyz.com",
             function()
               local body_data = assert(res:read_body())
               body_data = cjson.decode(body_data)
@@ -168,7 +169,7 @@ for _, strategy in helpers.each_strategy() do
           )
 
           it(
-            "\nCheck status code and host in response header",
+            "\nStatus code should be 200 and host should be fallback_host",
             function()
               local body_data = assert(res:read_body())
               body_data = cjson.decode(body_data)
@@ -277,9 +278,158 @@ for _, strategy in helpers.each_strategy() do
           )
 
           it(
-            "\nCheck response status code",
+            "\nStatus code should be 422",
             function()
               assert(res.status == 422)
+            end
+          )
+        end
+      )
+
+      describe(
+        "\n ** Should forward request to upstream at given port",
+        function()
+          -- Update plugin config via admin_client
+          admin_client = helpers.admin_client(60000)
+          local url = "/plugins/" .. host_interpolate_by_header["id"]
+          assert(admin_client:patch(
+            url,
+            {
+              headers = {
+                ["Content-Type"] = "application/json"
+              },
+              body = {
+                name = "host-interpolate-by-header",
+                config = {
+                  host = "<test-header>",
+                  fallback_host = "",
+                  headers = {"test-header"},
+                  port = 15555,
+                  operation = "none",
+                  modulo_by = 1,
+                },
+                enabled = true,
+                consumer = nil
+              }
+            }
+          ))
+
+          proxy_client = helpers.proxy_client()
+          local res = assert(proxy_client:send(
+            {
+              method = "GET",
+              path = "/gethost",
+              headers = {
+                ["Content-type"] = "application/json",
+                ["test-header"] = "127.0.0.1",
+              },
+              data = {}
+            }
+          ))
+
+          it(
+            "\nStatus code should be 200",
+            function()
+              assert(res.status == 200)
+            end
+          )
+        end
+      )
+
+      describe(
+        "\n ** Should fail with status 502 as the port provided in config is an invalid port",
+        function()
+          -- Update plugin config via admin_client
+          admin_client = helpers.admin_client(60000)
+          local url = "/plugins/" .. host_interpolate_by_header["id"]
+          assert(admin_client:patch(
+            url,
+            {
+              headers = {
+                ["Content-Type"] = "application/json"
+              },
+              body = {
+                name = "host-interpolate-by-header",
+                config = {
+                  host = "<test-header>",
+                  fallback_host = "",
+                  headers = {"test-header"},
+                  port = 10000,
+                  operation = "none",
+                  modulo_by = 1,
+                },
+                enabled = true,
+                consumer = nil
+              }
+            }
+          ))
+
+          proxy_client = helpers.proxy_client()
+          local res = assert(proxy_client:send(
+            {
+              method = "GET",
+              path = "/gethost",
+              headers = {
+                ["Content-type"] = "application/json",
+                ["test-header"] = "127.0.0.1",
+              },
+              data = {}
+            }
+          ))
+
+          it(
+            "\nStatus code should be 502",
+            function()
+              assert(res.status == 502)
+            end
+          )
+        end
+      )
+
+      describe(
+        "\n ** Should replace place_holder with a hyphen in the host",
+        function()
+          -- Update plugin config via admin_client
+          admin_client = helpers.admin_client(60000)
+          local url = "/plugins/" .. host_interpolate_by_header["id"]
+          assert(admin_client:patch(
+            url,
+            {
+              headers = {
+                ["Content-Type"] = "application/json"
+              },
+              body = {
+                name = "host-interpolate-by-header",
+                config = {
+                  host = "service_<test-header>.com",
+                  fallback_host = "",
+                  headers = {"test-header"},
+                  operation = "none",
+                  modulo_by = 1,
+                },
+                enabled = true,
+                consumer = nil
+              }
+            }
+          ))
+
+          proxy_client = helpers.proxy_client()
+          local res = assert(proxy_client:send(
+            {
+              method = "GET",
+              path = "/gethost",
+              headers = {
+                ["Content-type"] = "application/json",
+                ["test-header"] = "abc_xyz",
+              },
+              data = {}
+            }
+          ))
+
+          it(
+            "\nStatus code should be 200",
+            function()
+              assert(res.status == 200)
             end
           )
         end
