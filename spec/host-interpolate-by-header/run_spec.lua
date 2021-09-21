@@ -1,6 +1,9 @@
 local cjson = require "cjson"
 local helpers = require "spec.helpers"
 
+local SERVER_PORT = 15555
+local SERVER_IP = "127.0.0.1"
+
 for _, strategy in helpers.each_strategy() do
   describe(
     "Testing host-interpolate-by-header plugin working on[#" .. strategy .. "]",
@@ -24,7 +27,7 @@ for _, strategy in helpers.each_strategy() do
                   {
                     protocol = "http",
                     host = "test.com",
-                    port = 15555,
+                    port = SERVER_PORT,
                     name = "team"
                   }
                 )
@@ -48,18 +51,18 @@ for _, strategy in helpers.each_strategy() do
           }
           fixtures.dns_mock:SRV {
             name = "service_abc_xyz.com",
-            target = "127.0.0.1",
-            port = 15555
+            target = SERVER_IP,
+            port = SERVER_PORT
           }
           fixtures.dns_mock:SRV {
             name = "service_fallback.com",
-            target = "127.0.0.1",
-            port = 15555
+            target = SERVER_IP,
+            port = SERVER_PORT
           }
           fixtures.dns_mock:SRV {
             name = "service_shard_1.com",
-            target = "127.0.0.1",
-            port = 15555
+            target = SERVER_IP,
+            port = SERVER_PORT
           }
 
           assert(
@@ -286,6 +289,8 @@ for _, strategy in helpers.each_strategy() do
         end
       )
 
+      local host_placeholder = "test-header"
+
       describe(
         "\n ** Should forward request to upstream at given port",
         function()
@@ -301,10 +306,10 @@ for _, strategy in helpers.each_strategy() do
               body = {
                 name = "host-interpolate-by-header",
                 config = {
-                  host = "<test-header>",
+                  host = "<"..host_placeholder..">",
                   fallback_host = "",
-                  headers = {"test-header"},
-                  port = 15555,
+                  headers = {host_placeholder},
+                  port = SERVER_PORT,
                   operation = "none",
                   modulo_by = 1,
                 },
@@ -321,7 +326,7 @@ for _, strategy in helpers.each_strategy() do
               path = "/gethost",
               headers = {
                 ["Content-type"] = "application/json",
-                ["test-header"] = "127.0.0.1",
+                [host_placeholder] = SERVER_IP,
               },
               data = {}
             }
@@ -351,10 +356,10 @@ for _, strategy in helpers.each_strategy() do
               body = {
                 name = "host-interpolate-by-header",
                 config = {
-                  host = "<test-header>",
+                  host = "<"..  host_placeholder ..">",
                   fallback_host = "",
-                  headers = {"test-header"},
-                  port = 10000,
+                  headers = {host_placeholder},
+                  port = 10000,   --invalid port
                   operation = "none",
                   modulo_by = 1,
                 },
@@ -371,7 +376,7 @@ for _, strategy in helpers.each_strategy() do
               path = "/gethost",
               headers = {
                 ["Content-type"] = "application/json",
-                ["test-header"] = "127.0.0.1",
+                [host_placeholder] = SERVER_IP,
               },
               data = {}
             }
@@ -401,9 +406,9 @@ for _, strategy in helpers.each_strategy() do
               body = {
                 name = "host-interpolate-by-header",
                 config = {
-                  host = "service_<test-header>.com",
+                  host = "service_<".. host_placeholder ..">.com",
                   fallback_host = "",
-                  headers = {"test-header"},
+                  headers = {host_placeholder},
                   operation = "none",
                   modulo_by = 1,
                 },
@@ -420,16 +425,19 @@ for _, strategy in helpers.each_strategy() do
               path = "/gethost",
               headers = {
                 ["Content-type"] = "application/json",
-                ["test-header"] = "abc_xyz",
+                [host_placeholder] = "abc_xyz",
               },
               data = {}
             }
           ))
 
           it(
-            "\nStatus code should be 200",
+            "\nStatus code should be 200 and host should be service_abc_xyz.com",
             function()
+              local body_data = assert(res:read_body())
+              body_data = cjson.decode(body_data)
               assert(res.status == 200)
+              assert(body_data.headers.host == "service_abc_xyz.com")
             end
           )
         end
