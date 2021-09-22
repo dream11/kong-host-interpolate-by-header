@@ -12,6 +12,34 @@ for _, strategy in helpers.each_strategy() do
       local bp
       local db
 
+      local function update_config(plugin,host,fallback_host,operation, modulo_by, header_list, port)
+        -- Update plugin config via admin_client
+        admin_client = helpers.admin_client(60000)
+        local url = "/plugins/" .. host_interpolate_by_header["id"]
+        local res = admin_client:patch(
+          url,
+          {
+            headers = {
+              ["Content-Type"] = "application/json"
+            },
+            body = {
+              name = plugin,
+              config = {
+                host = host,
+                fallback_host = fallback_host,
+                port = port,
+                headers = header_list,
+                operation = operation,
+                modulo_by = modulo_by,
+              },
+              enabled = true,
+              consumer = nil
+            }
+          }
+        )
+        assert(res.status == 200 )
+      end
+
       setup(
         function()
           bp, db = helpers.get_db_utils(strategy, {"routes", "services", "plugins"}, {"host-interpolate-by-header"})
@@ -186,49 +214,33 @@ for _, strategy in helpers.each_strategy() do
       describe(
         "\n ** Request to upstream should be sent to correct hostname as per modulo logic",
         function()
-          -- Update plugin config via admin_client
-          admin_client = helpers.admin_client(60000)
-          local url = "/plugins/" .. host_interpolate_by_header["id"]
-          admin_client:patch(
-            url,
-            {
-              headers = {
-                ["Content-Type"] = "application/json"
-              },
-              body = {
-                name = "host-interpolate-by-header",
-                config = {
-                  host = "service_shard_<user_id>.com",
-                  fallback_host = "",
-                  headers = {"user_id"},
-                  operation = "modulo",
-                  modulo_by = 3,
-                },
-                enabled = true,
-                consumer = nil
-              }
-            }
-          )
+          local plugin = "host-interpolate-by-header"
+          local host = "service_shard_<user_id>.com"
+          local fallback_host = ""
+          local operation = "modulo"
+          local modulo_by = 3
+          local headers = {"user_id"}
 
-          proxy_client = helpers.proxy_client()
-          local res =
-            assert(
-            proxy_client:send(
-              {
-                method = "GET",
-                path = "/gethost",
-                headers = {
-                  ["Content-type"] = "application/json",
-                  ["user_id"] = 13
-                },
-                data = {}
-              }
-            )
-          )
+          update_config(plugin,host,fallback_host,operation, modulo_by, headers)
 
           it(
             "\nCheck status code and host in response header",
             function()
+              proxy_client = helpers.proxy_client()
+              local res =
+                assert(
+                proxy_client:send(
+                  {
+                    method = "GET",
+                    path = "/gethost",
+                    headers = {
+                      ["Content-type"] = "application/json",
+                      ["user_id"] = 13
+                    },
+                    data = {}
+                  }
+                )
+              )
               local body_data = assert(res:read_body())
               body_data = cjson.decode(body_data)
               assert(res.status == 200)
@@ -241,48 +253,33 @@ for _, strategy in helpers.each_strategy() do
       describe(
         "\n ** Request to upstream should fail with error code 422",
         function()
-          -- Update plugin config via admin_client
-          admin_client = helpers.admin_client(60000)
-          local url = "/plugins/" .. host_interpolate_by_header["id"]
-          assert(admin_client:patch(
-            url,
-            {
-              headers = {
-                ["Content-Type"] = "application/json"
-              },
-              body = {
-                name = "host-interpolate-by-header",
-                config = {
-                  host = "service_shard_<user_id>.com",
-                  fallback_host = "",
-                  headers = {"user_id"},
-                  operation = "none",
-                  modulo_by = 1,
-                },
-                enabled = true,
-                consumer = nil
-              }
-            }
-          ))
+          local plugin = "host-interpolate-by-header"
+          local host = "service_shard_<user_id>.com"
+          local fallback_host = ""
+          local operation = "none"
+          local modulo_by = 1
+          local headers = {"user_id"}
 
-          proxy_client = helpers.proxy_client()
-          local res =
-            assert(
-            proxy_client:send(
-              {
-                method = "GET",
-                path = "/gethost",
-                headers = {
-                  ["Content-type"] = "application/json",
-                },
-                data = {}
-              }
-            )
-          )
+          update_config(plugin,host,fallback_host,operation, modulo_by, headers)
 
           it(
             "\nStatus code should be 422",
             function()
+              proxy_client = helpers.proxy_client()
+              local res =
+                assert(
+                proxy_client:send(
+                  {
+                    method = "GET",
+                    path = "/gethost",
+                    headers = {
+                      ["Content-type"] = "application/json",
+                    },
+                    data = {}
+                  }
+                )
+              )
+              print("status: " .. res.status)
               assert(res.status == 422)
             end
           )
@@ -294,47 +291,30 @@ for _, strategy in helpers.each_strategy() do
       describe(
         "\n ** Should forward request to upstream at given port",
         function()
-          -- Update plugin config via admin_client
-          admin_client = helpers.admin_client(60000)
-          local url = "/plugins/" .. host_interpolate_by_header["id"]
-          assert(admin_client:patch(
-            url,
-            {
-              headers = {
-                ["Content-Type"] = "application/json"
-              },
-              body = {
-                name = "host-interpolate-by-header",
-                config = {
-                  host = "<"..host_placeholder..">",
-                  fallback_host = "",
-                  headers = {host_placeholder},
-                  port = SERVER_PORT,
-                  operation = "none",
-                  modulo_by = 1,
-                },
-                enabled = true,
-                consumer = nil
-              }
-            }
-          ))
-
-          proxy_client = helpers.proxy_client()
-          local res = assert(proxy_client:send(
-            {
-              method = "GET",
-              path = "/gethost",
-              headers = {
-                ["Content-type"] = "application/json",
-                [host_placeholder] = SERVER_IP,
-              },
-              data = {}
-            }
-          ))
+          local plugin = "host-interpolate-by-header"
+          local host = "<"..host_placeholder..">"
+          local fallback_host = ""
+          local operation = "none"
+          local modulo_by = 1
+          local headers = {host_placeholder}
+          local port = SERVER_PORT
+          update_config(plugin,host,fallback_host,operation, modulo_by, headers, port)
 
           it(
             "\nStatus code should be 200",
             function()
+              proxy_client = helpers.proxy_client()
+              local res = assert(proxy_client:send(
+                {
+                  method = "GET",
+                  path = "/gethost",
+                  headers = {
+                    ["Content-type"] = "application/json",
+                    [host_placeholder] = SERVER_IP,
+                  },
+                  data = {}
+                }
+              ))
               assert(res.status == 200)
             end
           )
@@ -344,47 +324,31 @@ for _, strategy in helpers.each_strategy() do
       describe(
         "\n ** Should fail with status 502 as the port provided in config is an invalid port",
         function()
-          -- Update plugin config via admin_client
-          admin_client = helpers.admin_client(60000)
-          local url = "/plugins/" .. host_interpolate_by_header["id"]
-          assert(admin_client:patch(
-            url,
-            {
-              headers = {
-                ["Content-Type"] = "application/json"
-              },
-              body = {
-                name = "host-interpolate-by-header",
-                config = {
-                  host = "<"..  host_placeholder ..">",
-                  fallback_host = "",
-                  headers = {host_placeholder},
-                  port = 10000,   --invalid port
-                  operation = "none",
-                  modulo_by = 1,
-                },
-                enabled = true,
-                consumer = nil
-              }
-            }
-          ))
 
-          proxy_client = helpers.proxy_client()
-          local res = assert(proxy_client:send(
-            {
-              method = "GET",
-              path = "/gethost",
-              headers = {
-                ["Content-type"] = "application/json",
-                [host_placeholder] = SERVER_IP,
-              },
-              data = {}
-            }
-          ))
+          local plugin = "host-interpolate-by-header"
+          local host = "<"..  host_placeholder ..">"
+          local fallback_host = ""
+          local operation = "none"
+          local modulo_by = 1
+          local headers = {host_placeholder}
+          local port = 10000
+          update_config(plugin,host,fallback_host,operation, modulo_by, headers, port)
 
           it(
             "\nStatus code should be 502",
             function()
+              proxy_client = helpers.proxy_client()
+              local res = assert(proxy_client:send(
+                {
+                  method = "GET",
+                  path = "/gethost",
+                  headers = {
+                    ["Content-type"] = "application/json",
+                    [host_placeholder] = SERVER_IP,
+                  },
+                  data = {}
+                }
+              ))
               assert(res.status == 502)
             end
           )
@@ -394,46 +358,30 @@ for _, strategy in helpers.each_strategy() do
       describe(
         "\n ** Should replace place_holder with a hyphen in the host",
         function()
-          -- Update plugin config via admin_client
-          admin_client = helpers.admin_client(60000)
-          local url = "/plugins/" .. host_interpolate_by_header["id"]
-          assert(admin_client:patch(
-            url,
-            {
-              headers = {
-                ["Content-Type"] = "application/json"
-              },
-              body = {
-                name = "host-interpolate-by-header",
-                config = {
-                  host = "service_<".. host_placeholder ..">.com",
-                  fallback_host = "",
-                  headers = {host_placeholder},
-                  operation = "none",
-                  modulo_by = 1,
-                },
-                enabled = true,
-                consumer = nil
-              }
-            }
-          ))
 
-          proxy_client = helpers.proxy_client()
-          local res = assert(proxy_client:send(
-            {
-              method = "GET",
-              path = "/gethost",
-              headers = {
-                ["Content-type"] = "application/json",
-                [host_placeholder] = "abc_xyz",
-              },
-              data = {}
-            }
-          ))
+          local plugin = "host-interpolate-by-header"
+          local host = "service_<".. host_placeholder ..">.com"
+          local fallback_host = ""
+          local operation = "none"
+          local modulo_by = 1
+          local headers = {host_placeholder}
+          update_config(plugin,host,fallback_host,operation, modulo_by, headers)
 
           it(
             "\nStatus code should be 200 and host should be service_abc_xyz.com",
             function()
+              proxy_client = helpers.proxy_client()
+              local res = assert(proxy_client:send(
+                {
+                  method = "GET",
+                  path = "/gethost",
+                  headers = {
+                    ["Content-type"] = "application/json",
+                    [host_placeholder] = "abc_xyz",
+                  },
+                  data = {}
+                }
+              ))
               local body_data = assert(res:read_body())
               body_data = cjson.decode(body_data)
               assert(res.status == 200)
