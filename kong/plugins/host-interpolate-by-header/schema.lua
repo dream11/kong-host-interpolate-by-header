@@ -44,7 +44,6 @@ return {
               default = 80
             }
           },
-
           {
             operation = {
               type = "string",
