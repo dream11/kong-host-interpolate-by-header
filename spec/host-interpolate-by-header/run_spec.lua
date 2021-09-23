@@ -120,7 +120,7 @@ for _, strategy in helpers.each_strategy() do
       )
 
       describe(
-        "\n ** Request should go to fallback host when no such header is present",
+        "\n ** Request should go to fallback host when no placeholder header is present ",
         function()
 
           it(
@@ -180,7 +180,7 @@ for _, strategy in helpers.each_strategy() do
       )
 
       describe(
-        "\n ** Request to upstream should be sent to fallback hostname when any of the header is missing",
+        "\n ** Request to upstream should be sent to fallback hostname when any of the headers is missing",
         function()
           it(
             "\nStatus code should be 200 and host should be fallback_host",
@@ -213,15 +213,16 @@ for _, strategy in helpers.each_strategy() do
         "\n ** Request to upstream should be sent to correct hostname as per modulo logic",
         function()
           setup(function()
-          local plugin = "host-interpolate-by-header"
-          local host = "service_shard_<user_id>.com"
-          local fallback_host = ""
-          local operation = "modulo"
-          local modulo_by = 3
-          local headers = {"user_id"}
+            local plugin = "host-interpolate-by-header"
+            local host = "service_shard_<user_id>.com"
+            local fallback_host = ""
+            local operation = "modulo"
+            local modulo_by = 3
+            local headers = {"user_id"}
 
-          update_config(plugin, host, fallback_host, operation, modulo_by, headers)
+            update_config(plugin, host, fallback_host, operation, modulo_by, headers)
           end)
+
           it(
             "\nCheck status code and host in response header",
             function()
@@ -262,6 +263,7 @@ for _, strategy in helpers.each_strategy() do
 
             update_config(plugin, host, fallback_host, operation, modulo_by, headers)
           end)
+
           it(
             "\nStatus code should be 422",
             function()
@@ -298,8 +300,10 @@ for _, strategy in helpers.each_strategy() do
             local modulo_by = 1
             local headers = {host_placeholder}
             local port = 10000
+
             update_config(plugin, host, fallback_host, operation, modulo_by, headers, port)
           end)
+
           it(
             "\nStatus code should be 502",
             function()
@@ -332,8 +336,10 @@ for _, strategy in helpers.each_strategy() do
             local modulo_by = 1
             local headers = {host_placeholder}
             local port = SERVER_PORT
+
             update_config(plugin, host, fallback_host, operation, modulo_by, headers, port)
           end)
+
           it(
             "\nStatus code should be 200",
             function()
