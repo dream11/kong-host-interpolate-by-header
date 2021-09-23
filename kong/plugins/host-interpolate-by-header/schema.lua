@@ -40,6 +40,11 @@ return {
             }
           },
           {
+            port = typedefs.port{
+              default = 80
+            }
+          },
+          {
             operation = {
               type = "string",
               len_min = 0,
