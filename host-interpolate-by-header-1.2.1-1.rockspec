@@ -1,11 +1,11 @@
 package = "host-interpolate-by-header"
 
-version = "1.2.0-1"
+version = "1.2.1-1"
 
 supported_platforms = {"linux", "macosx"}
 source = {
     url = "git://github.com/dream11/kong-host-interpolate-by-header",
-    tag = "v1.2.0"
+    tag = "v1.2.1"
 }
 
 description = {
