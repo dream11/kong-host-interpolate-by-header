@@ -12,7 +12,7 @@ for _, strategy in helpers.each_strategy() do
       local bp
       local db
 
-      local function update_config(plugin,host,fallback_host,operation, modulo_by, header_list, port)
+      local function update_config(plugin, host, fallback_host, operation, modulo_by, header_list, port)
         -- Update plugin config via admin_client
         admin_client = helpers.admin_client(60000)
         local url = "/plugins/" .. host_interpolate_by_header["id"]
@@ -122,23 +122,23 @@ for _, strategy in helpers.each_strategy() do
       describe(
         "\n ** Request should go to fallback host when no such header is present",
         function()
-          proxy_client = helpers.proxy_client()
-          local res =
-            assert(
-            proxy_client:send(
-              {
-                method = "GET",
-                path = "/gethost",
-                headers = {
-                  ["Content-type"] = "application/json"
-                }
-              }
-            )
-          )
 
           it(
             "\nStatus code should be 200 and host should be fallback_host",
             function()
+              proxy_client = helpers.proxy_client()
+                local res =
+                  assert(
+                  proxy_client:send(
+                    {
+                      method = "GET",
+                      path = "/gethost",
+                      headers = {
+                        ["Content-type"] = "application/json"
+                      }
+                    }
+                  )
+                )
               local body_data = assert(res:read_body())
               body_data = cjson.decode(body_data)
               assert(res.status == 200)
@@ -151,26 +151,25 @@ for _, strategy in helpers.each_strategy() do
       describe(
         "\n ** Request to upstream should be sent to correct interpolated hostname",
         function()
-          proxy_client = helpers.proxy_client()
-          local res =
-            assert(
-            proxy_client:send(
-              {
-                method = "GET",
-                path = "/gethost",
-                headers = {
-                  ["Content-type"] = "application/json",
-                  ["place_holder1"] = "abc",
-                  ["place_holder2"] = "xyz"
-                },
-                data = {}
-              }
-            )
-          )
-
           it(
             "\nStatus code should be 200 and host should be service_abc_xyz.com",
             function()
+              proxy_client = helpers.proxy_client()
+              local res =
+                assert(
+                proxy_client:send(
+                  {
+                    method = "GET",
+                    path = "/gethost",
+                    headers = {
+                      ["Content-type"] = "application/json",
+                      ["place_holder1"] = "abc",
+                      ["place_holder2"] = "xyz"
+                    },
+                    data = {}
+                  }
+                )
+              )
               local body_data = assert(res:read_body())
               body_data = cjson.decode(body_data)
               assert(res.status == 200)
@@ -183,25 +182,24 @@ for _, strategy in helpers.each_strategy() do
       describe(
         "\n ** Request to upstream should be sent to fallback hostname when any of the header is missing",
         function()
-          proxy_client = helpers.proxy_client()
-          local res =
-            assert(
-            proxy_client:send(
-              {
-                method = "GET",
-                path = "/gethost",
-                headers = {
-                  ["Content-type"] = "application/json",
-                  ["place_holder1"] = "abc"
-                },
-                data = {}
-              }
-            )
-          )
-
           it(
             "\nStatus code should be 200 and host should be fallback_host",
             function()
+              proxy_client = helpers.proxy_client()
+              local res =
+                assert(
+                proxy_client:send(
+                  {
+                    method = "GET",
+                    path = "/gethost",
+                    headers = {
+                      ["Content-type"] = "application/json",
+                      ["place_holder1"] = "abc"
+                    },
+                    data = {}
+                  }
+                )
+              )
               local body_data = assert(res:read_body())
               body_data = cjson.decode(body_data)
               assert(res.status == 200)
@@ -214,6 +212,7 @@ for _, strategy in helpers.each_strategy() do
       describe(
         "\n ** Request to upstream should be sent to correct hostname as per modulo logic",
         function()
+          setup(function()
           local plugin = "host-interpolate-by-header"
           local host = "service_shard_<user_id>.com"
           local fallback_host = ""
@@ -221,8 +220,8 @@ for _, strategy in helpers.each_strategy() do
           local modulo_by = 3
           local headers = {"user_id"}
 
-          update_config(plugin,host,fallback_host,operation, modulo_by, headers)
-
+          update_config(plugin, host, fallback_host, operation, modulo_by, headers)
+          end)
           it(
             "\nCheck status code and host in response header",
             function()
@@ -253,15 +252,16 @@ for _, strategy in helpers.each_strategy() do
       describe(
         "\n ** Request to upstream should fail with error code 422",
         function()
-          local plugin = "host-interpolate-by-header"
-          local host = "service_shard_<user_id>.com"
-          local fallback_host = ""
-          local operation = "none"
-          local modulo_by = 1
-          local headers = {"user_id"}
+          setup(function()
+            local plugin = "host-interpolate-by-header"
+            local host = "service_shard_<user_id>.com"
+            local fallback_host = ""
+            local operation = "none"
+            local modulo_by = 1
+            local headers = {"user_id"}
 
-          update_config(plugin,host,fallback_host,operation, modulo_by, headers)
-
+            update_config(plugin, host, fallback_host, operation, modulo_by, headers)
+          end)
           it(
             "\nStatus code should be 422",
             function()
@@ -279,7 +279,6 @@ for _, strategy in helpers.each_strategy() do
                   }
                 )
               )
-              print("status: " .. res.status)
               assert(res.status == 422)
             end
           )
@@ -289,51 +288,18 @@ for _, strategy in helpers.each_strategy() do
       local host_placeholder = "test-header"
 
       describe(
-        "\n ** Should forward request to upstream at given port",
-        function()
-          local plugin = "host-interpolate-by-header"
-          local host = "<"..host_placeholder..">"
-          local fallback_host = ""
-          local operation = "none"
-          local modulo_by = 1
-          local headers = {host_placeholder}
-          local port = SERVER_PORT
-          update_config(plugin,host,fallback_host,operation, modulo_by, headers, port)
-
-          it(
-            "\nStatus code should be 200",
-            function()
-              proxy_client = helpers.proxy_client()
-              local res = assert(proxy_client:send(
-                {
-                  method = "GET",
-                  path = "/gethost",
-                  headers = {
-                    ["Content-type"] = "application/json",
-                    [host_placeholder] = SERVER_IP,
-                  },
-                  data = {}
-                }
-              ))
-              assert(res.status == 200)
-            end
-          )
-        end
-      )
-
-      describe(
         "\n ** Should fail with status 502 as the port provided in config is an invalid port",
         function()
-
-          local plugin = "host-interpolate-by-header"
-          local host = "<"..  host_placeholder ..">"
-          local fallback_host = ""
-          local operation = "none"
-          local modulo_by = 1
-          local headers = {host_placeholder}
-          local port = 10000
-          update_config(plugin,host,fallback_host,operation, modulo_by, headers, port)
-
+          setup(function()
+            local plugin = "host-interpolate-by-header"
+            local host = "<"..  host_placeholder ..">"
+            local fallback_host = ""
+            local operation = "none"
+            local modulo_by = 1
+            local headers = {host_placeholder}
+            local port = 10000
+            update_config(plugin, host, fallback_host, operation, modulo_by, headers, port)
+          end)
           it(
             "\nStatus code should be 502",
             function()
@@ -356,16 +322,52 @@ for _, strategy in helpers.each_strategy() do
       )
 
       describe(
+        "\n ** Should forward request to upstream at given port",
+        function()
+          setup(function()
+            local plugin = "host-interpolate-by-header"
+            local host = "<"..host_placeholder..">"
+            local fallback_host = ""
+            local operation = "none"
+            local modulo_by = 1
+            local headers = {host_placeholder}
+            local port = SERVER_PORT
+            update_config(plugin, host, fallback_host, operation, modulo_by, headers, port)
+          end)
+          it(
+            "\nStatus code should be 200",
+            function()
+              proxy_client = helpers.proxy_client()
+              local res = assert(proxy_client:send(
+                {
+                  method = "GET",
+                  path = "/gethost",
+                  headers = {
+                    ["Content-type"] = "application/json",
+                    [host_placeholder] = SERVER_IP,
+                  },
+                  data = {}
+                }
+              ))
+              assert(res.status == 200)
+            end
+          )
+        end
+      )
+
+      describe(
         "\n ** Should replace place_holder with a hyphen in the host",
         function()
+          setup(function()
+            local plugin = "host-interpolate-by-header"
+            local host = "service_<".. host_placeholder ..">.com"
+            local fallback_host = ""
+            local operation = "none"
+            local modulo_by = 1
+            local headers = {host_placeholder}
 
-          local plugin = "host-interpolate-by-header"
-          local host = "service_<".. host_placeholder ..">.com"
-          local fallback_host = ""
-          local operation = "none"
-          local modulo_by = 1
-          local headers = {host_placeholder}
-          update_config(plugin,host,fallback_host,operation, modulo_by, headers)
+            update_config(plugin, host, fallback_host, operation, modulo_by, headers)
+          end)
 
           it(
             "\nStatus code should be 200 and host should be service_abc_xyz.com",
