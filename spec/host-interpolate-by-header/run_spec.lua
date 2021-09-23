@@ -251,7 +251,7 @@ for _, strategy in helpers.each_strategy() do
       )
 
       describe(
-        "\n ** Request to upstream should fail with error code 422",
+        "\n ** Request to upstream should fail with error code 422 if placeholder header and fallback host is absent",
         function()
           setup(function()
             local plugin = "host-interpolate-by-header"
@@ -362,7 +362,7 @@ for _, strategy in helpers.each_strategy() do
       )
 
       describe(
-        "\n ** Should replace place_holder with a hyphen in the host",
+        "\n ** Should successfully replace place_holder containing a hyphen in the host",
         function()
           setup(function()
             local plugin = "host-interpolate-by-header"
