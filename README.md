@@ -49,6 +49,18 @@ Now a request with header:
 on kong will be routed to `host = service_production_shard_1.com` as `13 % 3 = 1`.<br/>
 Note: Operation is not applied on environment variable interpolation.
 
+### Accepted Header
+
+Header names can contain following characters: `a-z`, `A_Z`, `0-9`,`_(underscore)`,`-(hyphen)`<br>
+Header names are case-insensitive and are normalized to lowercase, and dashes (-) can be written as underscores (_); that is, the header X-Custom-Header can also be retrieved as x_custom_header ([kong docs]([https://docs.konghq.com/gateway-oss/2.4.x/pdk/kong.request/#kongrequestget_headersmax_headers), [lua-nginx-module](https://github.com/openresty/lua-nginx-module#ngxreqget_headers).
+For example, if plugin config contains `host: <Place_Holder>.com, headers :{PLACE_HOLDER}`, following headers will be correctly picked up and interpolated.
+```
+place-holder : example
+Place_Holder : example
+place_holder :example
+```
+Note: The reverse is not true, that is, if plugin config contains "-" in header and request header contains "_", the header won't be retrieved for interpolation.
+
 ## Installation
 
 ### luarocks
@@ -77,3 +89,7 @@ You also need to set the `KONG_PLUGINS` environment variable:
 | `operation` | none | false | Operation to apply on header value (none/modulo) |
 | `modulo_by` | 1 | false | Number to do modulo by when operation = modulo |
 | `fallback_host` | - | false | Route to fallback_host if any of the headers is missing in request else error is returned with status code 422 |
+
+[reference]: https://docs.konghq.com/gateway-oss/2.4.x/pdk/kong.request/#kongrequestget_headersmax_headers),[lua
+
+[reference]: https://github.com/openresty/lua-nginx-module#ngxreqget_headers)).<br>
