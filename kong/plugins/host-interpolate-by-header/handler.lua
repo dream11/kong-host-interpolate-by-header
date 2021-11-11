@@ -1,7 +1,8 @@
 local HostInterpolateByHeaderHandler = {}
 
-HostInterpolateByHeaderHandler.PRIORITY = 810
 HostInterpolateByHeaderHandler.VERSION = "1.0.0"
+HostInterpolateByHeaderHandler.PRIORITY = tonumber(os.getenv("PRIORITY_HOST_INTERPOLATE_BY_HEADER")) or 810
+kong.log.info("Plugin priority set to " .. HostInterpolateByHeaderHandler.PRIORITY .. (os.getenv("PRIORITY_HOST_INTERPOLATE_BY_HEADER") and " from env" or " by default"))
 
 
 local function interpolate_header(host, _header, header_val, conf)
